@@ -1,0 +1,66 @@
+From 9ee01a1667638d129727b5ed2ca2df67a96c9e23 Mon Sep 17 00:00:00 2001
+From: Kai Tietz <ktietz@redhat.com>
+Date: Mon, 28 Mar 2011 13:07:00 +0200
+Subject: Ada: Backport of mainline SVN171599; system-mingw.ads and
+ gcc-interface/Makefile.in
+
+Patch edited by Tim S.
+
+2011-03-28  Kai Tietz  <ktietz@redhat.com>
+
+        * gcc-interface/Makefile.in (SO_LIB): Handle multilib build for native
+        windows targets.
+        (EH_MECHANISM): Make sure we use gcc's exception mechanism for all
+        native windows target.
+        * system-mingw.ads (System): Change ZCX_By_Default default to
+        True.
+---
+ gcc/ada/gcc-interface/Makefile.in | 5 +++++
+ gcc/ada/system-mingw.ads          | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/gcc/ada/gcc-interface/Makefile.in b/gcc/ada/gcc-interface/Makefile.in
+index 77027dd82a1..743f5fc9426 100644
+--- a/gcc/ada/gcc-interface/Makefile.in
++++ b/gcc/ada/gcc-interface/Makefile.in
+@@ -1634,21 +1634,26 @@ ifeq ($(strip $(filter-out cygwin32% mingw32% pe,$(osys))),)
+     s-osprim.adb<s-osprim-mingw.adb \
+     s-taprop.adb<s-taprop-mingw.adb
+ 
++    EH_MECHANISM=-gcc
+     ifeq ($(strip $(filter-out x86_64%,$(arch))),)
+       ifeq ($(strip $(MULTISUBDIR)),/32)
+ 	LIBGNAT_TARGET_PAIRS += \
+ 	  system.ads<system-mingw.ads
++	SO_OPTS= -m32 -Wl,-soname,
+       else
+ 	LIBGNAT_TARGET_PAIRS += \
+ 	  system.ads<system-mingw-x86_64.ads
++	SO_OPTS = -m64 -Wl,-soname,
+       endif
+     else
+       ifeq ($(strip $(MULTISUBDIR)),/64)
+ 	LIBGNAT_TARGET_PAIRS += \
+ 	  system.ads<system-mingw-x86_64.ads
++	SO_OPTS = -m64 -Wl,-soname,
+       else
+ 	LIBGNAT_TARGET_PAIRS += \
+ 	  system.ads<system-mingw.ads
++	SO_OPTS = -m32 -Wl,-soname,
+       endif
+     endif
+ 
+diff --git a/gcc/ada/system-mingw.ads b/gcc/ada/system-mingw.ads
+index 6a9131a30d5..b9ab72407a2 100644
+--- a/gcc/ada/system-mingw.ads
++++ b/gcc/ada/system-mingw.ads
+@@ -139,7 +139,7 @@ private
+    Always_Compatible_Rep     : constant Boolean := False;
+    Suppress_Standard_Library : constant Boolean := False;
+    Use_Ada_Main_Program_Name : constant Boolean := False;
+-   ZCX_By_Default            : constant Boolean := False;
++   ZCX_By_Default            : constant Boolean := True;
+    GCC_ZCX_Support           : constant Boolean := True;
+ 
+    ---------------------------
+-- 

@@ -1,0 +1,38 @@
+From c38a8367b6a48502efd67e583c88dd0a7aa324c9 Mon Sep 17 00:00:00 2001
+From: Kai Tietz <ktietz@redhat.com>
+Date: Mon, 4 Apr 2011 09:31:11 +0200
+Subject: Ada: Backport of mainline SVN171926 and SVN171943; s-oscons-tmplt.c
+
+Patch edited by Tim S.
+
+Failure building target-libada for MingW64
+
+2011-04-04  Kai Tietz  <ktietz@redhat.com>
+
+        PR ada/47163
+        * s-oscons-tmplt.c (MSG_WAITALL): Define it for native windows
+        targets to flag value.
+---
+ gcc/ada/s-oscons-tmplt.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/gcc/ada/s-oscons-tmplt.c b/gcc/ada/s-oscons-tmplt.c
+index ed3653a4878..4b5b138a963 100644
+--- a/gcc/ada/s-oscons-tmplt.c
++++ b/gcc/ada/s-oscons-tmplt.c
+@@ -1084,8 +1084,14 @@ CND(MSG_PEEK, "Peek at incoming data")
+ CND(MSG_EOR, "Send end of record")
+ 
+ #ifndef MSG_WAITALL
++#ifdef __MINWGW32__
++/* The value of MSG_WAITALL is 8.  Nevertheless winsock.h doesn't
++   define it, but it is still usable as we link to winsock2 API.  */
++# define MSG_WAITALL (1 << 3)
++#else
+ # define MSG_WAITALL -1
+ #endif
++#endif
+ CND(MSG_WAITALL, "Wait for full reception")
+ 
+ #ifndef MSG_NOSIGNAL
+-- 

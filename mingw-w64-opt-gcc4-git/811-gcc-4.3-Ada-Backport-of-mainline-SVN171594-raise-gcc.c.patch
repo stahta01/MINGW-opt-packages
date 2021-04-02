@@ -1,0 +1,32 @@
+From 972a2fb441ed9aae96a6b386853a941c268acf37 Mon Sep 17 00:00:00 2001
+From: Kai Tietz <ktietz@redhat.com>
+Date: Mon, 28 Mar 2011 12:00:42 +0200
+Subject: Ada: Backport of mainline SVN 171594; raise-gcc.c
+
+Patch edited by Tim S.
+
+2011-03-28  Kai Tietz  <ktietz@redhat.com>
+
+	* raise-gcc.c (PERSONALITY_FUNCTION): Add prototype to
+	prevent warning.
+---
+ gcc/ada/raise-gcc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/gcc/ada/raise-gcc.c b/gcc/ada/raise-gcc.c
+index 9c6aef930a9..3a887270b9d 100644
+--- a/gcc/ada/raise-gcc.c
++++ b/gcc/ada/raise-gcc.c
+@@ -1064,6 +1064,11 @@ typedef int version_arg_t;
+ typedef _Unwind_Action phases_arg_t;
+ #endif
+ 
++_Unwind_Reason_Code
++PERSONALITY_FUNCTION (version_arg_t, phases_arg_t,
++                      _Unwind_Exception_Class, _Unwind_Exception *,
++                      _Unwind_Context *);
++
+ _Unwind_Reason_Code
+ PERSONALITY_FUNCTION (version_arg_t version_arg,
+                       phases_arg_t phases_arg,
+-- 

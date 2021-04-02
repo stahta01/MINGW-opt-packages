@@ -1,0 +1,463 @@
+# Maintainer:  Tim Stahlhut <stahta01@gmail.com>
+
+_pkg_prefix=${MINGW_PREFIX}/opt
+
+_enable_info=no
+_enable_bootstrap=no
+_enable_threads=no
+_threads="posix"
+if [[ "$_enable_threads" == "yes" && "$_threads" == "posix" ]]; then
+  _enable_libgomp=yes
+else
+  _enable_libgomp=no
+fi
+_enable_gcc_plugin=no
+_enable_gcc_lto=yes
+
+_enable_ada=yes
+_enable_fortran=no
+_enable_objc=no
+
+_basename=gcc
+_realname=opt-gcc
+pkgbase=mingw-w64-opt-${_basename}4-git
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+pkgver=4.6.4.d20130412+45.c1.g66cc0b3cf5bc
+pkgrel=1
+pkgdesc="opt GCC4 for the MinGW-w64"
+arch=('any')
+url="https://gcc.gnu.org"
+license=('GPL' 'LGPL' 'FDL' 'custom')
+groups=("${MINGW_PACKAGE_PREFIX}-opt-toolchain")
+makedepends=("${MINGW_PACKAGE_PREFIX}-binutils"
+             "${MINGW_PACKAGE_PREFIX}-opt-crt"
+             "${MINGW_PACKAGE_PREFIX}-opt-headers"
+             "${MINGW_PACKAGE_PREFIX}-libiconv"
+             "${MINGW_PACKAGE_PREFIX}-windows-default-manifest"
+             "${MINGW_PACKAGE_PREFIX}-zlib"
+              'bison' 'diffutils' 'flex' 'lndir' 'make' 'patch' 'tar' 'git')
+if [[ "$_enable_threads" == "yes" && "$_threads" == "posix" ]]; then
+  makedepends+=("${MINGW_PACKAGE_PREFIX}-winpthreads")
+fi
+if [[ "$_enable_info" == "yes" ]]; then
+  makedepends+=('texinfo')
+fi
+depends=(
+  "${MINGW_PACKAGE_PREFIX}-opt-crt"
+  "${MINGW_PACKAGE_PREFIX}-binutils" 
+  "${MINGW_PACKAGE_PREFIX}-opt-headers"
+  "${MINGW_PACKAGE_PREFIX}-zlib"      # Does it really depend on zlib?
+)
+if [[ "$_enable_threads" == "yes" && "$_threads" == "posix" ]]; then
+  depends+=("${MINGW_PACKAGE_PREFIX}-winpthreads")  # Should I move this package to /opt?
+fi
+provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+checkdepends=('dejagnu')
+optdepends=()
+options=('strip' '!debug' 'staticlibs' '!emptydirs' '!buildflags')
+
+#_git_branch=releases/gcc-4.9 # libcpp/files.c:815:27: error: cannot convert '_off_t*' to 'off_t*' for argument '7' to 'unsigned char* _cpp_convert_input(cpp_reader*, const char*, unsigned char*, size_t, size_t, const unsigned char**, off_t*)'
+
+#_git_branch=releases/gcc-4.8 # libcpp/files.c:812:27: error: cannot convert '_off_t*' to 'off_t*' for argument '7' to 'unsigned char* _cpp_convert_input(cpp_reader*, const char*, unsigned char*, size_t, size_t, const unsigned char**, off_t*)'
+
+# resulted in C++ preprocessor "/lib/cpp" fails sanity check was caused by a build without C++ compiler in the build compiler.
+# Some time during version 4.7 or the patch files the requirement for a working C++ happened!
+
+#_git_branch=releases/gcc-4.7                           # SVN211571
+#_git_commit='6cda24c97b5a1fa6cd27365c9aa90c95f45da4aa' # SVN205956
+#_git_commit='50bf9f145c75b1fbc372e33610af14a8be328e58' # SVN199341
+#_git_commit='911595bf2d485c0d1e067d9a94a867d9b8281502' # SVN197738 releases/gcc-4.7.3
+#_git_commit='b058453f82a5dab2304c3ddf1ce646eaa748a475' # SVN191557 releases/gcc-4.7.2
+#_git_commit='4c4c82223c4c3c975acc829f51cfeef77835fd87' # SVN191070
+#_git_commit='539f5de0732db5c5accb038cbfb07a8d5cb89599' # SVN190178 Revert SVN190174
+#_git_commit='442a102d1884867d646eea51b30b92e5aa3bc6ae' # SVN189667
+#_git_commit='bbbfa18796b1bdb65834cebc880664e3d78877d4' # SVN189200
+#_git_commit='c979aa52203ca4a6d7f981c3150af3d44ff2d4a6' # SVN188654
+#_git_commit='412d31f03a14be123bb01a7a33a93fd8a68e23e6' # SVN188623
+#_git_commit='edc56cde5124be76dd6ae3baff9eeb1fb61a1c41' # SVN188596 releases/gcc-4.7.1
+#_git_commit='050358f1954ebb05dbb5e0747ce01f3c65f8774b' # SVN188513
+#_git_commit='3156520d5df2a2e52b78f266cd750aa05b5ae64c' # SVN188167
+#_git_commit='95d2db2008d8ac8772cd0fd634e6228376e632eb' # SVN188122
+#_git_commit='c8f5c98afa95c15641c97672de12df0664e564ae' # SVN187205
+#_git_commit='c45a86fd95f3afecb6dc2dc99232062845f4b570' # SVN186959
+#_git_commit='ae02e369d7a25c78527e89ca132ec1909902631d' # SVN185674 releases/gcc-4.7.0
+
+# commits from the main line next
+#_git_commit='bf4db96c93ce31bbad0984724f9ab2d6695ca9ee' # SVN183005 Built and installed okay
+#_git_commit='53e3000cd1513601000059fd6175912d5ee41b04' # SVN171943
+#_git_commit='b4dcc393633b3c43779bb15b9f7606dad50bc67c' # SVN171922 TODO
+#_git_commit='8ffac116df93baf38130a6a7de2d419b04dae660' # SVN171888
+#_git_commit='65444786bebc03fd4f639801aecc8a25047d33f8' # SVN171881
+#_git_commit='80ec8b4cf19ac985c95e2a222d84e48324cb8994' # SVN171879 Built and installed okay
+#_git_commit='2a9d769a7f82fb505b88cb590690885e937e5662' # SVN171862 Built and installed okay
+#_git_commit='d428585c130f90d2af6d3ec077ad282c9380d556' # SVN171813
+#_git_commit='99ac3cea6ea8d66936122185c34121c21e3a78b7' # SVN171712 Built and installed okay
+#_git_commit='c9bdb1521e5b2244fe4b3b962a0dea2e4b8c97f4' # SVN171603 Built and installed okay
+#_git_commit='322dd85963282f7b28ae25ccaafbf45ab2c9145d' # SVN171602               tree-inline.c (expand_call_inline): Do not check that destination node is analyzed.
+#_git_commit='aa53e58b920d4fe4bbdb26e227401ad827c52a57' # SVN171601 SKIP          sparc-opts.h: New.
+#_git_commit='8c6d158ae268f4d347c0a3863ca497d5e4f275b4' # SVN171600 SKIP          configure.ac: Add support for *-*-dragonfly*
+#_git_commit='333d8affda47af57600b39ace5e51f99747b366e' # SVN171599 Built and installed and rebuilt itself okay
+#_git_commit='dd350eba538e72107948333b2540d059a096563a' # SVN171598 SKIP          PR testsuite/48245 (FAIL: gcc.dg/lto/pr46940 c_lto_pr46940_0.o assemble on *-apple-darwin*)
+#_git_commit='2438d7a61fd4ac2cbc115c1918c8ed0389ce6868' # SVN171594 Failed with libada undefined reference to `__gnat_personality_sj0' * raise-gcc.c (PERSONALITY_FUNCTION): Add prototype to prevent warning.
+#_git_commit='8ad150f6cc733273ae838ebd77a1b9d6ed2985d1' # SVN171593
+#_git_commit='b03bdade7aac1d74817bf756de872a15c573db35' # SVN170939
+#_git_commit='6bd73dd88994055cdddca4225a5305f7a9282df9' # SVN170936 begin 4.7.0   Failed with libada undefined reference to `__gnat_personality_sj0'
+#_git_commit='7f4d6e1beb079e85cf99fc1f4df2e1732beda67c' # SVN170934 last  4.6.0
+#_git_commit='d39ac823a3e78ec20f62188898cb834c2315516b' # SVN170918
+#_git_commit='8918fe18ab24b24cba7575face37f1726a23ef19' # SVN165625 Failed with libada undefined reference to `__gnat_personality_sj0' But, fixed undefined reference to __gl_main_cpu
+#_git_commit='bde8a146a602d86483dff9a5b0a9f34419ab3d32' # SVN165433 Failed after libdecnumber config with undefined reference to __gl_main_cpu in gcc/ada/b_gnat1.c
+#_git_commit='f166413ae0e3dd76bc8c83d9865bcff20d5623aa' # SVN165377 
+#_git_commit='56186ac266ccf826d53ecc39dd60fb03fbe93523' # SVN157992 begin 4.6.0 
+
+# gcc PR ada/47163 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47163
+# ada/s-oscons-tmplt.c            See SVN171926 and SVN171943
+# ada/raise-gcc.c                 See SVN171594
+# ada/gcc-interface/Makefile.in   Partly done in SVN196003 PR target/52122 add LN_S_RECURSIVE and likely started in SVN171599
+# ada/g-socthi-mingw.adb          Looks like ada/system-mingw.ads was changed instead in SVN171599
+
+#_git_commit='' # SVN
+# BUILDING NEXT TODO REDO   Built and installed and rebuilt itself okay
+
+ _git_branch=releases/gcc-4.6                           # SVN197894 ??
+#_git_commit='2cff026c42234e6e5ed987f56a4a3d6bdb0041ec' # SVN171524 begin 4.6.1
+#_git_commit='0dfc7a93ee18b0a0bd8ad51366efe068adffb516' # SVN170938 
+#_git_commit='d3bccded30236d16e477a7bbd79aff51724234b0' # SVN157990 begin 4.6.0
+
+#_git_branch=releases/gcc-4.5                           # SVN189152 NEXT
+#_git_commit='41eccc86828f6a2bf7decd1cf241219f5dee6ac2' # SVN189152
+
+_git_repo_url=git://gcc.gnu.org/git/gcc.git
+_sourcedir=${_basename}-git
+#_git_repo_url=git://github.com/stahta01/gcc.git
+#_sourcedir=my-${_basename}-git
+#_git_repo_url=git://github.com/stahta01/gcc4_main_development.git
+#_sourcedir=main4-${_basename}-git
+
+if [ -n "$_git_branch" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#branch=$_git_branch")
+elif [ -n "$_git_tag" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#tag=$_git_tag")
+elif [ -n "$_git_commit" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#commit=$_git_commit")
+else
+  source=(${_sourcedir}::"${_git_repo_url}")
+fi
+MPFR_VERSION=mpfr-2.4.2
+GMP_VERSION=gmp-4.3.2
+MPC_VERSION=mpc-0.8.1
+noextract=("${MPFR_VERSION}.tar.bz2" "${GMP_VERSION}.tar.bz2" "${MPC_VERSION}.tar.gz")
+source+=("ftp://gcc.gnu.org/pub/gcc/infrastructure/${MPFR_VERSION}.tar.bz2"
+        "ftp://gcc.gnu.org/pub/gcc/infrastructure/${GMP_VERSION}.tar.bz2"
+        "ftp://gcc.gnu.org/pub/gcc/infrastructure/${MPC_VERSION}.tar.gz")
+source+=(
+  '001-gcc-4.8-libstdc++export.patch'
+  '002-gcc-4.7-stdthreads.patch'
+  '130-pex-win32.c-argv_to_cmdline-Don-t-quote-args-unneces.patch'
+  '130-dont-escape-arguments-that-dont-need-it-in-pex-win32.c.patch'
+  '140-fix-for-windows-not-minding-non-existant-parent-dirs.patch'
+  '150-windows-lrealpath-no-force-lowercase-nor-backslash.patch'
+  '210-gcc-4.4-ktietz-libgomp.patch'
+  '230-build-more-gnattools.mingw.patch'
+  '802-gcc-4.0-xm-mingw32.h-__USE_MINGW_ANSI_STDIO.patch'
+  '802-handle-use-mingw-ansi-stdio.patch'
+  '804-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch'
+  '806-gcc-4.8-libgcc-references.patch'
+  '807-gcc-4.8-lambda-ICE.patch'
+  '811-gcc-4.3-Ada-Backport-of-mainline-SVN171594-raise-gcc.c.patch'
+  '812-Ada-Backport-of-mainline-SVN171599-system-mingw.ads.patch'
+  '813-gcc-4.4-Ada-Backport-of-mainline-SVN171926-and-SVN171943.patch'
+  '814-gcc-4.7.0-Ada-SVN196003-PR-target-52122-add-LN_S_RECURSIVE.patch'
+  '822-gcc-4.6.0-SVN196198-PR-bootstrap-56258-fix-texi-docs.patch'
+  '823-gcc-4.6.0-SVN196820-PR-bootstrap-56258-fix-texi-docs.patch'
+  '831-Backport-part-of-PR-bootstrap-53912.patch')
+sha256sums=('SKIP'
+            'c7e75a08a8d49d2082e4caee1591a05d11b9d5627514e678f02d66a124bcf2ba'
+            '936162c0312886c21581002b79932829aa048cfaf9937c6265aeaa14f1cd1775'
+            'e664603757251fd8a352848276497a4c79b7f8b21fd8aedd5cc0598a38fee3e4'
+            '21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d'
+            '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b'
+            'c7870683c9e6b7606ed9e67f95c0deb9483844d04b8817fd95e1452da719a779'
+            '800e81e4e6acb07f1b69cccc07a8dae8cdbf7c084ac00c8869e9b4cb205c655c'
+            'd341bfb0e655f7daf0057aab899c3ac9e1363dbb6f0ca2cbffa6144e0ca2ad17'
+            '0953d65d4fb3d681c76b6d6353e3cc424751a417872435f724d463001da66d43'
+            'a2006bc728a112a22303de61480967f003d5e140e0fd18d5588bc298c60dce5b'
+            'd16e76e0aa9e5a1c239424edc3a6da52785e82849b6e00850f8e2526e7f496d9'
+            '106ad6cbcb1493e6db08878d9ead13f3feac9573d9f267ef81fd3429d6fc294a'
+            '3b9779b05198b4c814709f211623c0b1ebf8937f32eba29826cf15bfc29df9a3'
+            '2cafd273a667f1130e9cd20c87cd5c83cda1100de9958b9dbbf656dcf29fd2bb'
+            'cdedc021d5389e59066e6bbc0b053a7fd23386d7aace8f40a4c3f53045ef36a3'
+            'dbbb202cd36aea01f3671997d4e53aad6674de5b774812d6a6460e58997a8117'
+            '14678dd6af556f26f148ea29647286da1d5af25a23c8930ce6af218ee4960d31'
+            '93a89df6bddfa8add01973772c1709fbdc00e9e3339b1840a94fe4511b0c8cd5'
+            '536e3e84734efed51980fccd40570881a5a6147e092dcb3096e8fea42131ddcc'
+            'ceb22c62c285b550f8a6d65d8a30580e2aa0e283b80fb1586665d6ce37181d34'
+            'b7342afe39135cbfecf1c80e539d2465a18d68788e8e7f8b79cdd8b5dcaccea9'
+            '88fc796cc48653e27dab3f3ec85e3935e5f0f7c05ec5e4dc1da912cdcced774d'
+            '260871784d1e78374d2545eb6edd88c42da381fd77d8cacea1984b6a8876397d')
+# =========================================== #
+# common helper macros                        #
+_apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    if patch --dry-run -Nbp1 -i "${srcdir}/${_patch}" > /dev/null 2>&1 ; then
+      msg2 "Applying ${_patch}"
+      patch -Nbp1 -i "${srcdir}/${_patch}"
+    elif patch --dry-run -Rbp1 -i "${srcdir}/${_patch}" > /dev/null 2>&1 ; then
+      msg2 "Skipping ${_patch} because it likely was already applied"
+    else
+      msg2 "Skipping ${_patch} because it likely will fail"
+    fi
+  done
+}
+
+_extract_to_source_folder() {
+    local tarfile="$1"
+    local subfolder="$(echo "$tarfile" | sed 's/-.*$//')"
+    if [ ! -d  "${srcdir}/${_sourcedir}/$subfolder" ]; then
+        echo "Extracting ${tarfile} to ${_sourcedir}/$subfolder"
+        mkdir -p "${srcdir}/${_sourcedir}/$subfolder"
+        tar -x --strip-components=1 -f "${srcdir}/$tarfile" -C "${srcdir}/${_sourcedir}/$subfolder"
+    fi
+}
+# =========================================== #
+
+_git_base_commit=
+_gcc_version=
+_gcc_date=
+
+pkgver() {
+  cd ${srcdir}/${_sourcedir}
+  printf "%s.d%s+%s.c%s.g%s" "$_gcc_version" "$_gcc_date" $(git rev-list --count $(git rev-list -1 ${_git_base_commit} gcc/DATESTAMP)..${_git_base_commit}) $(git rev-list --count ${_git_base_commit}..HEAD) $(git rev-parse --short ${_git_base_commit})
+}
+
+prepare() {
+  cd ${srcdir}/${_sourcedir}
+  _git_base_commit=$(git rev-parse HEAD)
+  _gcc_version=$(head -n 34 gcc/BASE-VER | sed -e 's/.* //' | tr -d '"\n')
+  _gcc_date=$(head -n 34 gcc/DATESTAMP | sed -e 's/.* //' | tr -d '"\n')
+
+  echo "_gcc_version := ${_gcc_version}"
+  echo "_gcc_date := ${_gcc_date}"
+
+  _extract_to_source_folder       $MPFR_VERSION.tar.bz2
+  _extract_to_source_folder       $GMP_VERSION.tar.bz2
+  _extract_to_source_folder       $MPC_VERSION.tar.gz
+
+
+  cd ${srcdir}/${_sourcedir}
+  GIT_AM="git am --committer-date-is-author-date"
+
+
+  if [[ "${_gcc_version:0:3}" > "4.6" ]]; then
+    _apply_patch_with_msg 001-gcc-4.8-libstdc++export.patch
+    _apply_patch_with_msg 002-gcc-4.7-stdthreads.patch
+  fi
+
+  #_apply_patch_with_msg 130-pex-win32.c-argv_to_cmdline-Don-t-quote-args-unneces.patch
+  _apply_patch_with_msg 130-dont-escape-arguments-that-dont-need-it-in-pex-win32.c.patch
+  _apply_patch_with_msg 140-fix-for-windows-not-minding-non-existant-parent-dirs.patch
+  _apply_patch_with_msg 150-windows-lrealpath-no-force-lowercase-nor-backslash.patch
+
+  ${GIT_AM} ${srcdir}/210-gcc-4.4-ktietz-libgomp.patch
+  _apply_patch_with_msg 230-build-more-gnattools.mingw.patch
+
+  _apply_patch_with_msg 811-gcc-4.3-Ada-Backport-of-mainline-SVN171594-raise-gcc.c.patch
+  _apply_patch_with_msg 812-Ada-Backport-of-mainline-SVN171599-system-mingw.ads.patch
+  _apply_patch_with_msg 813-gcc-4.4-Ada-Backport-of-mainline-SVN171926-and-SVN171943.patch
+  _apply_patch_with_msg 814-gcc-4.7.0-Ada-SVN196003-PR-target-52122-add-LN_S_RECURSIVE.patch
+
+  #_apply_patch_with_msg 802-gcc-4.0-xm-mingw32.h-__USE_MINGW_ANSI_STDIO.patch
+  _apply_patch_with_msg 802-handle-use-mingw-ansi-stdio.patch
+  if [[ "${_gcc_version:0:3}" > "4.6" ]]; then
+    _apply_patch_with_msg 806-gcc-4.8-libgcc-references.patch
+    _apply_patch_with_msg 807-gcc-4.8-lambda-ICE.patch
+  fi
+  if [[ "${_gcc_version}" < "4.6.4" ]]; then
+    _apply_patch_with_msg 822-gcc-4.6.0-SVN196198-PR-bootstrap-56258-fix-texi-docs.patch
+    _apply_patch_with_msg 823-gcc-4.6.0-SVN196820-PR-bootstrap-56258-fix-texi-docs.patch
+  fi
+  _apply_patch_with_msg 804-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+
+  _apply_patch_with_msg 831-Backport-part-of-PR-bootstrap-53912.patch
+
+  # Fixes build time problem with finding dllcrt2.o and crtbegin.o and libs mingwthrd, mingw32, and etc.
+  # Replace "/mingw/" with CRT folder that contains lib sub folder
+  local MINGW_CRT_NATIVE_PREFIX=$(cygpath -am ${MINGW_PREFIX}/opt/${MINGW_CHOST})
+  sed -i "s/\\/mingw\\//${MINGW_CRT_NATIVE_PREFIX//\//\\/}\\//g" gcc/config/i386/mingw32.h
+  # sed -i "s|/mingw/|${MINGW_CRT_NATIVE_PREFIX}/|g" gcc/config/i386/mingw32.h
+
+  # GCC 4.6.4 needed this build fix
+  # FIX "The directory that should contain system headers does not exist: /mingw/include"
+  sed -i "s|/mingw/include|/mingw32/include|g" gcc/config/i386/t-mingw-w32
+  sed -i "s|/mingw/include|/mingw64/include|g" gcc/config/i386/t-mingw-w64
+
+  # Replace "${prefix}/mingw/" with "${prefix}/"
+  sed -i 's|${prefix}/mingw/|${prefix}/|g' configure
+}
+
+build() {
+  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
+  mkdir -p ${srcdir}/build-${MINGW_CHOST} && cd ${srcdir}/build-${MINGW_CHOST}
+
+  local -a configure_opts
+
+  case "${CARCH}" in
+    i686)
+      if [[ "${_gcc_version}" < "4.7" ]]; then
+        configure_opts+=("--enable-sjlj-exceptions")
+        configure_opts+=("--without-dwarf2")
+      else
+        configure_opts+=("--disable-sjlj-exceptions")
+        configure_opts+=("--with-dwarf2")
+      fi
+      LDFLAGS+=" -Wl,--large-address-aware"
+      local _arch=i686
+    ;;
+
+    x86_64)
+      local _arch=x86-64
+      if [[ "${_gcc_version}" < "4.7" ]]; then
+        configure_opts+=("--enable-sjlj-exceptions")
+        configure_opts+=("--without-dwarf2")
+      fi
+    ;;
+  esac
+
+  case "${CARCH}" in
+    i686)
+      local _local_gcc32_prefix=/c/GreenApps32/gcc_4.6.0-mingw32_x86_generic/mingw
+      export PATH="${_local_gcc32_prefix}/bin":$PATH
+      export GNATBIND="${_local_gcc32_prefix}/bin/gnatbind"
+      export GNATMAKE="${_local_gcc32_prefix}/bin/gnatmake"
+      export CC="${_local_gcc32_prefix}/bin/gcc"
+      export CXX="${_local_gcc32_prefix}/bin/g++"
+    ;;
+
+    x86_64)
+      local _local_gcc64_prefix=/c/GreenApps64/gcc_4.6.0_mingw64_x86_64_K8+ada/mingw64
+      export PATH="${_local_gcc64_prefix}/bin":$PATH
+      export GNATBIND="${_local_gcc64_prefix}/bin/gnatbind"
+      export GNATMAKE="${_local_gcc64_prefix}/bin/gnatmake"
+      export CC="${_local_gcc64_prefix}/bin/gcc"
+      export CXX="${_local_gcc64_prefix}/bin/g++"
+    ;;
+  esac
+
+#  local _local_gcc_prefix=${MINGW_PREFIX}/opt
+#  export PATH="${_local_gcc_prefix}/bin":$PATH
+#  export GNATBIND="${_local_gcc_prefix}/bin/gnatbind"
+#  export GNATMAKE="${_local_gcc_prefix}/bin/gnatmake"
+#  export CC="${_local_gcc_prefix}/bin/gcc"
+#  export CXX="${_local_gcc_prefix}/bin/g++"
+
+  pacman -Q ${MINGW_PACKAGE_PREFIX}-opt-crt
+  gcc --version
+  ld  --version
+  if [ "$_enable_ada" == "yes" ]; then
+    gnatbind  --version
+  fi
+
+  if [ "$_enable_bootstrap" == "yes" ]; then
+    configure_opts+=("--enable-bootstrap")
+  elif [ "$_enable_bootstrap" == "no" ]; then
+    configure_opts+=("--disable-bootstrap")
+  fi
+
+  if [ "$_enable_gcc_lto" == "yes" ]; then
+    configure_opts+=("--enable-lto")
+  else
+    configure_opts+=("--disable-lto")
+  fi
+
+  if [ "$_enable_gcc_plugin" == "yes" ]; then
+    configure_opts+=("--enable-plugin")
+  else
+    configure_opts+=("--disable-plugin")
+  fi
+
+  if [ "$_enable_threads" == "yes" ]; then
+    configure_opts+=("--enable-threads=${_threads}")
+  elif [ "$_enable_threads" == "no" ]; then
+    configure_opts+=("--disable-threads")
+  fi
+
+  if [ "$_enable_libgomp" == "yes" ]; then
+    configure_opts+=("--enable-libgomp")
+  elif [ "$_enable_libgomp" == "no" ]; then
+    configure_opts+=("--disable-libgomp")
+  fi
+
+  local _languages="c,c++"
+  if [ "$_enable_gcc_lto" == "yes" ]; then
+    _languages+=",lto"
+  fi
+  if [ "$_enable_ada" == "yes" ]; then
+    _languages+=",ada"
+  fi
+  if [ "$_enable_fortran" == "yes" ]; then
+    _languages+=",fortran"
+  fi
+  if [ "$_enable_objc" == "yes" ]; then
+    _languages+=",objc,obj-c++"
+  fi
+
+  echo "CPPFLAGS := ${CPPFLAGS}"
+  echo "CFLAGS := ${CFLAGS}"
+  echo "CXXFLAGS := ${CXXFLAGS}"
+  echo "LDFLAGS := ${LDFLAGS}"
+
+  ../${_sourcedir}/configure \
+    --prefix=${_pkg_prefix} \
+    --with-local-prefix=${MINGW_PREFIX}/local \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --with-native-system-header-dir=${MINGW_PREFIX}/opt/${MINGW_CHOST}/include \
+    --libexecdir=${_pkg_prefix}/lib \
+    --with-arch=${_arch} \
+    --with-tune=generic \
+    --enable-languages=${_languages} \
+    --enable-shared --enable-static \
+    --disable-graphite \
+    --enable-fully-dynamic-string \
+    --enable-libstdcxx-time=yes \
+    --disable-libstdcxx-pch \
+    --disable-libstdcxx-debug \
+    --enable-version-specific-runtime-libs \
+    --without-cloog --without-isl \
+    --disable-multilib \
+    --enable-checking=release \
+    --disable-rpath \
+    --disable-win32-registry \
+    --disable-nls \
+    --disable-werror \
+    --disable-symvers \
+    --with-libiconv \
+    --with-zlib=${MINGW_PREFIX} \
+    --with-pkgversion="Rev${pkgrel}, Built by stahta01 -- Tim S" \
+    --with-bugurl="https://github.com/stahta01/GCC-MINGW-packages/issues" \
+    --with-gnu-as --with-gnu-ld \
+    "${configure_opts[@]}"
+
+  make all
+}
+
+check() {
+  #cd ${srcdir}/build-${MINGW_CHOST}/gcc
+  #if [ "$_enable_gcc_lto" == "yes" ]; then
+    #make -j1 -k check-lto || true
+  #fi
+  cd ${srcdir}/build-${MINGW_CHOST}
+  ##make -j1 -k check-c++ || true
+  ##make -j1 -k check-c   || true
+  if [ "$_enable_ada" == "yes" ]; then
+    make -j1 -k check-ada || true
+  fi
+}
+
+package() {
+  cd ${srcdir}/build-${MINGW_CHOST}
+  make DESTDIR=${pkgdir} install
+}
+
