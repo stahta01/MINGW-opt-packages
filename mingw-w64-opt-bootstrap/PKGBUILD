@@ -1,0 +1,61 @@
+# Maintainer:  Tim Stahlhut <stahta01@gmail.com>
+
+pkgbase=mingw-w64-opt-bootstrap
+pkgname=("${MINGW_PACKAGE_PREFIX}-opt-bootstrap")
+pkgver=1
+pkgrel=1
+pkgdesc="Installs bootstrap packages for opt GCC4 for the MinGW-w64"
+arch=('any')
+url="https://gcc.gnu.org"
+license=('GPL' 'LGPL' 'FDL' 'custom')
+groups=()
+makedepends=()
+depends=()
+optdepends=()
+options=(!strip)
+
+conflicts=(
+  "${MINGW_PACKAGE_PREFIX}-opt-headers"
+  "${MINGW_PACKAGE_PREFIX}-opt-crt"
+  "${MINGW_PACKAGE_PREFIX}-opt-pthread-stub-headers"
+  "${MINGW_PACKAGE_PREFIX}-opt-gcc"
+)
+
+provides=(
+  "${MINGW_PACKAGE_PREFIX}-opt-headers"
+  "${MINGW_PACKAGE_PREFIX}-opt-crt"
+  "${MINGW_PACKAGE_PREFIX}-opt-pthread-stub-headers"
+  "${MINGW_PACKAGE_PREFIX}-opt-gcc"
+)
+
+source=(
+  'mingw-w64-i686-opt-crt-git-5.0.0-1-any.pkg.tar.zst'
+  'mingw-w64-i686-opt-gcc-git-4.6.4-1-any.pkg.tar.zst'
+  'mingw-w64-i686-opt-headers-git-5.0.0-1-any.pkg.tar.zst'
+  'mingw-w64-i686-opt-pthread-stub-headers-git-5.0.0-1-any.pkg.tar.zst'
+  'mingw-w64-x86_64-opt-crt-git-5.0.0-1-any.pkg.tar.zst'
+  'mingw-w64-x86_64-opt-gcc-git-4.6.4-1-any.pkg.tar.zst'
+  'mingw-w64-x86_64-opt-headers-git-5.0.0-1-any.pkg.tar.zst'
+  'mingw-w64-x86_64-opt-pthread-stub-headers-git-5.0.0-1-any.pkg.tar.zst')
+sha256sums=('19e6f08f7b2acb18aeba73bfe5de9e02694057ef4719095232a1e8ced88165e0'
+            'd2dcfc96b7fe5ed1a4bec0a22432f8d2b0ab9aa19bd29a654ce00083215d4292'
+            'd798ae3d74641dd8c3a56931c2cfbfe9c037676a785bb3ae06b6bbf854094fb1'
+            'acf2135d14c7c7ffdb765ef4ab81fc210b5ea0de09d78906e8a2b57960ad812e'
+            '3cbe095b44dd91b48229384b9ea6f824318b562f19708ac275c43120f8b4362b'
+            '92afceb8ecc707679ef7b37db90cb27737bf317db3885acf54c27906d93a06ba'
+            '10872122889007fdbf5a76c373c34f6e3283b00aa3c645cd5119312e17cb7a56'
+            'b937705a2828a1c45634ff0fc72003be54a2db10efd296064af23ef8e3d727e4')
+
+prepare() {
+  echo "prepare does nothing"
+}
+
+build() {
+  echo "build does nothing"
+}
+
+package() {
+  msg "Copying bootstrap package files for ${CARCH}"
+  mkdir -p ${pkgdir}${MINGW_PREFIX}
+  cp --recursive ${srcdir}${MINGW_PREFIX} ${pkgdir}/
+}
