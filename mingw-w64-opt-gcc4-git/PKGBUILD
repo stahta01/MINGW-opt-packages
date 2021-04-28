@@ -3,7 +3,7 @@
 _pkg_prefix=${MINGW_PREFIX}/opt
 
 _enable_info=no
-_enable_bootstrap=no
+_enable_bootstrap=yes
 _enable_threads=no
 _threads="posix"
 if [[ "$_enable_threads" == "yes" && "$_threads" == "posix" ]]; then
