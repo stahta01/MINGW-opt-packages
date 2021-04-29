@@ -296,6 +296,9 @@ prepare() {
   if [[ "${_gcc_version:0:3}" > "4.5" ]]; then
     sed -i "s|/mingw/include|/mingw32/include|g" gcc/config/i386/t-mingw-w32
     sed -i "s|/mingw/include|/mingw64/include|g" gcc/config/i386/t-mingw-w64
+  else
+    sed -i "s|/mingw/include|/mingw32/include|g" gcc/config/i386/t-mingw32
+    sed -i "s|/mingw/include|/mingw64/include|g" gcc/config/i386/t-mingw-w64
   fi
 
   # Replace "${prefix}/mingw/" with "${prefix}/"
