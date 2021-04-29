@@ -22,7 +22,7 @@ _basename=gcc
 _realname=opt-gcc
 pkgbase=mingw-w64-opt-${_basename}4-git
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
-pkgver=4.6.4.d20130412+45.c1.g66cc0b3cf5bc
+pkgver=4.5.4.d20120702+42.c1.g41eccc86828f
 pkgrel=1
 pkgdesc="opt GCC4 for the MinGW-w64"
 arch=('any')
@@ -293,8 +293,10 @@ prepare() {
 
   # GCC 4.6.4 needed this build fix
   # FIX "The directory that should contain system headers does not exist: /mingw/include"
-  sed -i "s|/mingw/include|/mingw32/include|g" gcc/config/i386/t-mingw-w32
-  sed -i "s|/mingw/include|/mingw64/include|g" gcc/config/i386/t-mingw-w64
+  if [[ "${_gcc_version:0:3}" > "4.5" ]]; then
+    sed -i "s|/mingw/include|/mingw32/include|g" gcc/config/i386/t-mingw-w32
+    sed -i "s|/mingw/include|/mingw64/include|g" gcc/config/i386/t-mingw-w64
+  fi
 
   # Replace "${prefix}/mingw/" with "${prefix}/"
   sed -i 's|${prefix}/mingw/|${prefix}/|g' configure
