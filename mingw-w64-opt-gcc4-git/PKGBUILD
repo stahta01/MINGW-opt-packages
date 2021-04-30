@@ -1,7 +1,7 @@
 # Maintainer:  Tim Stahlhut <stahta01@gmail.com>
 
-#_pkg_prefix=${MINGW_PREFIX}/opt
-_pkg_prefix=${MINGW_PREFIX}
+_pkg_prefix=${MINGW_PREFIX}/opt
+#_pkg_prefix=${MINGW_PREFIX}
 
 _enable_info=no
 _enable_bootstrap=no
@@ -27,7 +27,7 @@ else
 fi
 pkgbase=mingw-w64-opt-${_basename}4-git
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
-pkgver=4.6.4.d20130412+45.c1.g66cc0b3cf5b
+pkgver=4.5.4.d20120702+42.c1.g41eccc86828
 pkgrel=1
 pkgdesc="opt GCC4 for the MinGW-w64"
 arch=('any')
@@ -134,13 +134,13 @@ options=('strip' '!debug' 'staticlibs' '!emptydirs' '!buildflags')
 #_git_commit='' # SVN
 # BUILDING NEXT TODO REDO   Built and installed and rebuilt itself okay
 
- _git_branch=releases/gcc-4.6                           # SVN197894 Built and installed and rebuilt itself okay; bootstrap built okay
+#_git_branch=releases/gcc-4.6                           # SVN197894 Built and installed and rebuilt itself okay; bootstrap built okay
 #_git_commit='2cff026c42234e6e5ed987f56a4a3d6bdb0041ec' # SVN171524 begin 4.6.1
 #_git_commit='0dfc7a93ee18b0a0bd8ad51366efe068adffb516' # SVN170938 
 #_git_commit='d3bccded30236d16e477a7bbd79aff51724234b0' # SVN157990 begin 4.6.0
 
 # libgcc undefined reference to `__chkstk_ms' looks to be an CRT 5.x caused problem
-#_git_branch=releases/gcc-4.5                           # SVN189152 
+ _git_branch=releases/gcc-4.5                           # SVN189152 
 #_git_commit='41eccc86828f6a2bf7decd1cf241219f5dee6ac2' # SVN189152
 
 #_git_branch=releases/gcc-4.4                           # SVN185318
