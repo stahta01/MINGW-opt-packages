@@ -140,6 +140,7 @@ options=('strip' '!debug' 'staticlibs' '!emptydirs' '!buildflags')
 #_git_commit='d3bccded30236d16e477a7bbd79aff51724234b0' # SVN157990 begin 4.6.0
 
 # libgcc undefined reference to `__chkstk_ms' looks to be an CRT 5.x caused problem
+# libgcc configure: error: cannot compute suffix of object files: cannot compile  looks like an config.guess/sub caused problem
  _git_branch=releases/gcc-4.5                           # SVN189152 
 #_git_commit='41eccc86828f6a2bf7decd1cf241219f5dee6ac2' # SVN189152
 
@@ -190,7 +191,9 @@ source+=(
   '814-gcc-4.7.0-Ada-SVN196003-PR-target-52122-add-LN_S_RECURSIVE.patch'
   '822-gcc-4.6.0-SVN196198-PR-bootstrap-56258-fix-texi-docs.patch'
   '823-gcc-4.6.0-SVN196820-PR-bootstrap-56258-fix-texi-docs.patch'
-  '831-Backport-part-of-PR-bootstrap-53912.patch')
+  '831-Backport-part-of-PR-bootstrap-53912.patch'
+  'config.guess'
+  'config.sub')
 sha256sums=('SKIP'
             'c7e75a08a8d49d2082e4caee1591a05d11b9d5627514e678f02d66a124bcf2ba'
             '936162c0312886c21581002b79932829aa048cfaf9937c6265aeaa14f1cd1775'
@@ -214,7 +217,9 @@ sha256sums=('SKIP'
             'ceb22c62c285b550f8a6d65d8a30580e2aa0e283b80fb1586665d6ce37181d34'
             'b7342afe39135cbfecf1c80e539d2465a18d68788e8e7f8b79cdd8b5dcaccea9'
             '88fc796cc48653e27dab3f3ec85e3935e5f0f7c05ec5e4dc1da912cdcced774d'
-            '260871784d1e78374d2545eb6edd88c42da381fd77d8cacea1984b6a8876397d')
+            '260871784d1e78374d2545eb6edd88c42da381fd77d8cacea1984b6a8876397d'
+            'c4d68b51f44dcc9147bd32cbd5bcc410bbb4a72ac05493777cd3a933dbcbb353'
+            'cd13a6cfa48bcd2eb847a21917710c83aa29d3c3503f015ab22ce66e0e07de51')
 # =========================================== #
 # common helper macros                        #
 _apply_patch_with_msg() {
@@ -301,6 +306,10 @@ prepare() {
 
   _apply_patch_with_msg 831-Backport-part-of-PR-bootstrap-53912.patch
 
+  if [[ "${_gcc_version:0:3}" < "4.6" ]]; then
+    cp -f ${srcdir}/config.guess ${srcdir}/${_sourcedir}/
+    cp -f ${srcdir}/config.sub   ${srcdir}/${_sourcedir}/
+  fi
   # Fixes build time problem with finding dllcrt2.o and crtbegin.o and libs mingwthrd, mingw32, and etc.
   # Replace "/mingw/" with CRT folder that contains lib sub folder
   local MINGW_CRT_NATIVE_PREFIX=$(cygpath -am ${_pkg_prefix}/${MINGW_CHOST})
@@ -351,12 +360,12 @@ build() {
     ;;
   esac
 
-  local _local_gcc_prefix=${MINGW_PREFIX}/opt
-  export PATH="${_local_gcc_prefix}/bin":$PATH
-  export GNATBIND="${_local_gcc_prefix}/bin/gnatbind"
-  export GNATMAKE="${_local_gcc_prefix}/bin/gnatmake"
-  export CC="${_local_gcc_prefix}/bin/gcc"
-  export CXX="${_local_gcc_prefix}/bin/g++"
+#  local _local_gcc_prefix=${MINGW_PREFIX}/opt
+#  export PATH="${_local_gcc_prefix}/bin":$PATH
+#  export GNATBIND="${_local_gcc_prefix}/bin/gnatbind"
+#  export GNATMAKE="${_local_gcc_prefix}/bin/gnatmake"
+#  export CC="${_local_gcc_prefix}/bin/gcc"
+#  export CXX="${_local_gcc_prefix}/bin/g++"
 
   pacman -Qs ${CARCH}-opt-crt || true
   gcc --version
