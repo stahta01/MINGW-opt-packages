@@ -1,6 +1,7 @@
 # Maintainer:  Tim Stahlhut <stahta01@gmail.com>
 
-_pkg_prefix=${MINGW_PREFIX}/opt
+#_pkg_prefix=${MINGW_PREFIX}/opt
+_pkg_prefix=${MINGW_PREFIX}
 
 _enable_info=no
 _enable_bootstrap=no
@@ -19,23 +20,34 @@ _enable_fortran=no
 _enable_objc=no
 
 _basename=gcc
-_realname=opt-gcc
+if [ "${_pkg_prefix}" == "${MINGW_PREFIX}/opt"  ]; then
+  _realname=opt-gcc
+else
+  _realname=gcc
+fi
 pkgbase=mingw-w64-opt-${_basename}4-git
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
-pkgver=4.5.4.d20120702+42.c1.g41eccc86828f
+pkgver=4.6.4.d20130412+45.c1.g66cc0b3cf5b
 pkgrel=1
 pkgdesc="opt GCC4 for the MinGW-w64"
 arch=('any')
 url="https://gcc.gnu.org"
 license=('GPL' 'LGPL' 'FDL' 'custom')
-groups=("${MINGW_PACKAGE_PREFIX}-opt-toolchain")
+if [ "${_pkg_prefix}" == "${MINGW_PREFIX}/opt"  ]; then
+  groups=("${MINGW_PACKAGE_PREFIX}-opt-toolchain")
+else
+  groups=("${MINGW_PACKAGE_PREFIX}-toolchain")
+fi
 makedepends=("${MINGW_PACKAGE_PREFIX}-binutils"
-             "${MINGW_PACKAGE_PREFIX}-opt-crt"
-             "${MINGW_PACKAGE_PREFIX}-opt-headers"
              "${MINGW_PACKAGE_PREFIX}-libiconv"
              "${MINGW_PACKAGE_PREFIX}-windows-default-manifest"
              "${MINGW_PACKAGE_PREFIX}-zlib"
               'bison' 'diffutils' 'flex' 'lndir' 'make' 'patch' 'tar' 'git')
+if [ "${_pkg_prefix}" == "${MINGW_PREFIX}/opt"  ]; then
+  makedepends+=("${MINGW_PACKAGE_PREFIX}-opt-crt" "${MINGW_PACKAGE_PREFIX}-opt-headers")
+else
+  makedepends+=("${MINGW_PACKAGE_PREFIX}-crt" "${MINGW_PACKAGE_PREFIX}-headers")
+fi
 if [[ "$_enable_threads" == "yes" && "$_threads" == "posix" ]]; then
   makedepends+=("${MINGW_PACKAGE_PREFIX}-winpthreads")
 fi
@@ -44,10 +56,13 @@ if [[ "$_enable_info" == "yes" ]]; then
 fi
 depends=(
   "${MINGW_PACKAGE_PREFIX}-binutils"
-  "${MINGW_PACKAGE_PREFIX}-opt-crt"
-  "${MINGW_PACKAGE_PREFIX}-opt-headers"
   "${MINGW_PACKAGE_PREFIX}-zlib"      # Does it really depend on zlib?
 )
+if [ "${_pkg_prefix}" == "${MINGW_PREFIX}/opt"  ]; then
+  depends+=("${MINGW_PACKAGE_PREFIX}-opt-crt" "${MINGW_PACKAGE_PREFIX}-opt-headers")
+else
+  depends+=("${MINGW_PACKAGE_PREFIX}-crt" "${MINGW_PACKAGE_PREFIX}-headers")
+fi
 if [[ "$_enable_threads" == "yes" && "$_threads" == "posix" ]]; then
   depends+=("${MINGW_PACKAGE_PREFIX}-winpthreads")  # Should I move this package to /opt?
 fi
@@ -119,12 +134,13 @@ options=('strip' '!debug' 'staticlibs' '!emptydirs' '!buildflags')
 #_git_commit='' # SVN
 # BUILDING NEXT TODO REDO   Built and installed and rebuilt itself okay
 
-#_git_branch=releases/gcc-4.6                           # SVN197894 Built and installed and rebuilt itself okay; bootstrap built okay
+ _git_branch=releases/gcc-4.6                           # SVN197894 Built and installed and rebuilt itself okay; bootstrap built okay
 #_git_commit='2cff026c42234e6e5ed987f56a4a3d6bdb0041ec' # SVN171524 begin 4.6.1
 #_git_commit='0dfc7a93ee18b0a0bd8ad51366efe068adffb516' # SVN170938 
 #_git_commit='d3bccded30236d16e477a7bbd79aff51724234b0' # SVN157990 begin 4.6.0
 
- _git_branch=releases/gcc-4.5                           # SVN189152 BUILDING
+# libgcc undefined reference to `__chkstk_ms' looks to be an CRT 5.x caused problem
+#_git_branch=releases/gcc-4.5                           # SVN189152 
 #_git_commit='41eccc86828f6a2bf7decd1cf241219f5dee6ac2' # SVN189152
 
 #_git_branch=releases/gcc-4.4                           # SVN185318
@@ -287,16 +303,18 @@ prepare() {
 
   # Fixes build time problem with finding dllcrt2.o and crtbegin.o and libs mingwthrd, mingw32, and etc.
   # Replace "/mingw/" with CRT folder that contains lib sub folder
-  local MINGW_CRT_NATIVE_PREFIX=$(cygpath -am ${MINGW_PREFIX}/opt/${MINGW_CHOST})
+  local MINGW_CRT_NATIVE_PREFIX=$(cygpath -am ${_pkg_prefix}/${MINGW_CHOST})
+
   sed -i "s/\\/mingw\\//${MINGW_CRT_NATIVE_PREFIX//\//\\/}\\//g" gcc/config/i386/mingw32.h
   # sed -i "s|/mingw/|${MINGW_CRT_NATIVE_PREFIX}/|g" gcc/config/i386/mingw32.h
 
-  # GCC 4.6.4 needed this build fix
   # FIX "The directory that should contain system headers does not exist: /mingw/include"
   if [[ "${_gcc_version:0:3}" > "4.5" ]]; then
+    # GCC 4.6.4 needed this build fix
     sed -i "s|/mingw/include|/mingw32/include|g" gcc/config/i386/t-mingw-w32
     sed -i "s|/mingw/include|/mingw64/include|g" gcc/config/i386/t-mingw-w64
   else
+    # GCC 4.5.4 needed this build fix
     sed -i "s|/mingw/include|/mingw32/include|g" gcc/config/i386/t-mingw32
     sed -i "s|/mingw/include|/mingw64/include|g" gcc/config/i386/t-mingw-w64
   fi
@@ -333,26 +351,6 @@ build() {
     ;;
   esac
 
-#  case "${CARCH}" in
-#    i686)
-#      local _local_gcc32_prefix=/c/GreenApps32/gcc_4.6.0-mingw32_x86_generic/mingw
-#      export PATH="${_local_gcc32_prefix}/bin":$PATH
-#      export GNATBIND="${_local_gcc32_prefix}/bin/gnatbind"
-#      export GNATMAKE="${_local_gcc32_prefix}/bin/gnatmake"
-#      export CC="${_local_gcc32_prefix}/bin/gcc"
-#      export CXX="${_local_gcc32_prefix}/bin/g++"
-#    ;;
-#
-#    x86_64)
-#      local _local_gcc64_prefix=/c/GreenApps64/gcc_4.6.0_mingw64_x86_64_K8+ada/mingw64
-#      export PATH="${_local_gcc64_prefix}/bin":$PATH
-#      export GNATBIND="${_local_gcc64_prefix}/bin/gnatbind"
-#      export GNATMAKE="${_local_gcc64_prefix}/bin/gnatmake"
-#      export CC="${_local_gcc64_prefix}/bin/gcc"
-#      export CXX="${_local_gcc64_prefix}/bin/g++"
-#    ;;
-#  esac
-
   local _local_gcc_prefix=${MINGW_PREFIX}/opt
   export PATH="${_local_gcc_prefix}/bin":$PATH
   export GNATBIND="${_local_gcc_prefix}/bin/gnatbind"
@@ -360,7 +358,7 @@ build() {
   export CC="${_local_gcc_prefix}/bin/gcc"
   export CXX="${_local_gcc_prefix}/bin/g++"
 
-#  pacman -Q ${MINGW_PACKAGE_PREFIX}-opt-crt
+  pacman -Qs ${CARCH}-opt-crt || true
   gcc --version
   ld  --version
   if [ "$_enable_ada" == "yes" ]; then
@@ -422,7 +420,7 @@ build() {
     --build=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
-    --with-native-system-header-dir=${MINGW_PREFIX}/opt/${MINGW_CHOST}/include \
+    --with-native-system-header-dir=${_pkg_prefix}/${MINGW_CHOST}/include \
     --libexecdir=${_pkg_prefix}/lib \
     --with-arch=${_arch} \
     --with-tune=generic \
